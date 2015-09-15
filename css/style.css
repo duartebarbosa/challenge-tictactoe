@@ -62,7 +62,24 @@ html, body {
   display: inline-block;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 568px) {
+	.square {
+		height: 60px;
+		width: 60px;
+		margin: 10px;
+	}
+
+	#tic-tac-toe #game li {
+	    list-style: none;
+	    text-align: center;
+	    vertical-align: middle;
+	    font-size: 30px;
+	    color: #ccc
+	}
+
+}
+
+@media ((min-width: 569px) and (max-width: 768px)) {
 	.square {
 		height: 80px;
 		width: 80px;
