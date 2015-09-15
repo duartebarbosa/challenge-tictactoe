@@ -21,7 +21,7 @@
 
 <body>
     <!--[if lt IE 8]>
-    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
     <section class="container text-center">
         <h1>Tic Tac Toe</h1>
@@ -47,15 +47,28 @@
                 <br>
             </ul>
         </div>
-        <!--button onclick="reset()">Play again</button-->
     </section>
+
     <footer class="text-center">
         <p>source available <a href="https://github.com/duartebarbosa/challenge-tictactoe">here</a></p>
         <p><span class="copyleft">©</span> Duarte Barbosa - 2015</p>
     </footer>
 
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body text-center">
+            <h2 id="modal-content">Computer wins!</h2><br>
+            <button type="button" class="btn btn-success" data-dismiss="modal" id="modal-button">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.3.min.js"><\/script>')</script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="js/plugins.js"></script>
     <script src="js/main.js"></script>
 
