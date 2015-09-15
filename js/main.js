@@ -1,44 +1,52 @@
-
 $(document).ready(function() {
-    var board = {
-        one: "+",
-        two: "+",
-        three: "+",
-        four: "+",
-        five: "+",
-        six: "+",
-        seven: "+",
-        eight: "+",
-        nine: "+"
-    }
     var move_count = 0;
-    var x = "x"
-    var o = "o"
+    var player = "x";
+    var computer = "o";
+    var empty = "+";
+
+    var board = {
+        one: empty,
+        two: empty,
+        three: empty,
+        four: empty,
+        five: empty,
+        six: empty,
+        seven: empty,
+        eight: empty,
+        nine: empty
+    }
 
     function reset() {
-        $("#game li").text("+");
+        $("#game li").text(empty);
         $("#game li").removeClass('disable')
         $("#game li").removeClass('btn-primary')
         $("#game li").removeClass('btn-info')
-        $("#game li").removeClass(o)
-        $("#game li").removeClass(x)
+        $("#game li").removeClass('computer')
+        $("#game li").removeClass('player')
         move_count = 0
         board = {
-            one: "+",
-            two: "+",
-            three: "+",
-            four: "+",
-            five: "+",
-            six: "+",
-            seven: "+",
-            eight: "+",
-            nine: "+"
+            one: empty,
+            two: empty,
+            three: empty,
+            four: empty,
+            five: empty,
+            six: empty,
+            seven: empty,
+            eight: empty,
+            nine: empty
         }
 
     }
 
-    function player_wins(player) {
-        return board.one == board.two && board.one == board.three && board.one == player || board.four == board.five && board.four == board.six && board.four == player || board.seven == board.eight && board.seven == board.nine && board.seven == player || board.one == board.four && board.one == board.seven && board.one == player || board.two == board.five && board.two == board.eight && board.two == player || board.three == board.six && board.three == board.nine && board.three == player || board.one == board.five && board.one == board.nine && board.one == player || board.three == board.five && board.three == board.seven && board.three == player;
+    function player_wins(player){
+        return board.one == board.two && board.one == board.three && board.one == player
+                || board.four == board.five && board.four == board.six && board.four == player
+                || board.seven == board.eight && board.seven == board.nine && board.seven == player
+                || board.one == board.four && board.one == board.seven && board.one == player
+                || board.two == board.five && board.two == board.eight && board.two == player
+                || board.three == board.six && board.three == board.nine && board.three == player
+                || board.one == board.five && board.one == board.nine && board.one == player
+                || board.three == board.five && board.three == board.seven && board.three == player;
     }
 
     function is_draw() {
@@ -49,8 +57,6 @@ $(document).ready(function() {
     }
 
     function win() {
-        player = x;
-        computer = o;
         var next_move = "";
         if (move_count > 4) {
             if (board.one == board.two && board.three != player && board.one == computer)
@@ -111,8 +117,6 @@ $(document).ready(function() {
     }
 
     function block() {
-        player = x;
-        computer = o;
         var next_move = "";
         if (move_count >= 3) {
             if (board.one == board.two && board.three != computer && board.one == player)
@@ -174,51 +178,49 @@ $(document).ready(function() {
 
 
     function fork() {
-        player = x;
-        computer = o;
         var next_move = ""
         if (move_count >= 5) {
             if (board.five == computer) {
-                if (board.one == computer && board.five == "+")
+                if (board.one == computer && board.five == empty)
                     next_move = "board.five"
-                else if (board.five == computer && board.one == "+")
+                else if (board.five == computer && board.one == empty)
                     next_move = "board.one"
-                else if (board.one == computer && board.seven == "+")
+                else if (board.one == computer && board.seven == empty)
                     next_move = "board.seven"
-                else if (board.seven == computer && board.one == "+")
+                else if (board.seven == computer && board.one == empty)
                     next_move = "board.one"
-                else if (board.seven == computer && board.nine == "+")
+                else if (board.seven == computer && board.nine == empty)
                     next_move = "board.nine"
-                else if (board.nine == computer && board.seven == "+")
+                else if (board.nine == computer && board.seven == empty)
                     next_move = "board.seven"
-                else if (board.three == computer && board.nine == "+")
+                else if (board.three == computer && board.nine == empty)
                     next_move = "board.nine"
-                else if (board.nine == computer && board.three == "+")
+                else if (board.nine == computer && board.three == empty)
                     next_move = "board.three"
             } else {
-                if (board.one == computer && board.three == computer && board.nine == "+")
+                if (board.one == computer && board.three == computer && board.nine == empty)
                     next_move = "board.nine"
-                else if (board.one == computer && board.nine == computer && board.three == "+")
+                else if (board.one == computer && board.nine == computer && board.three == empty)
                     next_move = "board.three"
-                else if (board.three == computer && board.nine == computer && board.one == "+")
+                else if (board.three == computer && board.nine == computer && board.one == empty)
                     next_move = "board.one"
-                else if (board.one == computer && board.seven == computer && board.three == "+")
+                else if (board.one == computer && board.seven == computer && board.three == empty)
                     next_move = "board.three"
-                else if (board.one == computer && board.three == computer && board.seven == "+")
+                else if (board.one == computer && board.three == computer && board.seven == empty)
                     next_move = "board.seven"
-                else if (board.seven == computer && board.three == computer && board.one == "+")
+                else if (board.seven == computer && board.three == computer && board.one == empty)
                     next_move = "board.one"
-                else if (board.one == computer && board.nine == computer && board.seven == "+")
+                else if (board.one == computer && board.nine == computer && board.seven == empty)
                     next_move = "board.seven"
-                else if (board.one == computer && board.seven == computer && board.nine == "+")
+                else if (board.one == computer && board.seven == computer && board.nine == empty)
                     next_move = "board.nine"
-                else if (board.seven == computer && board.nine == computer && board.one == "+")
+                else if (board.seven == computer && board.nine == computer && board.one == empty)
                     next_move = "board.one"
-                else if (board.three == computer && board.nine == computer && board.seven == "+")
+                else if (board.three == computer && board.nine == computer && board.seven == empty)
                     next_move = "board.seven"
-                else if (board.three == computer && board.seven == computer && board.nine == "+")
+                else if (board.three == computer && board.seven == computer && board.nine == empty)
                     next_move = "board.nine"
-                else if (board.seven == computer && board.nine == computer && board.three == "+")
+                else if (board.seven == computer && board.nine == computer && board.three == empty)
                     next_move = "board.three"
             }
             if (next_move != "") {
@@ -229,8 +231,17 @@ $(document).ready(function() {
         return false;
     }
 
+    function block_fork() {
+        if (board.five == computer) {
+            if (board.one == player && board.nine == player || board.three == player && board.seven == player)
+                return empty_side();
+        }
+
+        return false;
+    }
+
     function center() {
-        if (board.five == "+") {
+        if (board.five == empty) {
             move_bot("board.five");
             return true;
         }
@@ -238,15 +249,14 @@ $(document).ready(function() {
     }
 
     function opposite_corner() {
-        player = x;
         var next_move = ""
-        if (board.one == player && board.nine == "+") {
+        if (board.one == player && board.nine == empty) {
             next_move = "board.nine";
-        } else if (board.three == player && board.seven == "+") {
+        } else if (board.three == player && board.seven == empty) {
             next_move = "board.seven"
-        } else if (board.seven == player && board.three == "+") {
+        } else if (board.seven == player && board.three == empty) {
             next_move = "board.three"
-        } else if (board.nine == player && board.one == "+") {
+        } else if (board.nine == player && board.one == empty) {
             next_move = "board.one"
         }
         if (next_move != "") {
@@ -258,13 +268,13 @@ $(document).ready(function() {
 
     function empty_corner() {
         var next_move = ""
-        if (board.one == "+") {
+        if (board.one == empty) {
             next_move = "board.one"
-        } else if (board.three == "+") {
+        } else if (board.three == empty) {
             next_move = "board.three"
-        } else if (board.seven == "+") {
+        } else if (board.seven == empty) {
             next_move = "board.seven"
-        } else if (board.nine == "+") {
+        } else if (board.nine == empty) {
             next_move = "board.nine";
         }
         if (next_move != "") {
@@ -276,11 +286,11 @@ $(document).ready(function() {
 
     function empty_side() {
         if (move_count < 9) {
-            if (board.two == "+") {
+            if (board.two == empty) {
                 move_bot("board.two");
-            } else if (board.four == "+") {
+            } else if (board.four == empty) {
                 move_bot("board.four");
-            } else if (board.six == "+") {
+            } else if (board.six == empty) {
                 move_bot("board.six");
             } else {
                 move_bot("board.eight");
@@ -353,9 +363,9 @@ $(document).ready(function() {
                 new_move = "nine";
                 break;
         }
-        add_board(new_move, o);
-        $("#" + new_move).text(o)
-        $("#" + new_move).addClass('disable o btn-primary')
+        add_board(new_move, computer);
+        $("#" + new_move).text(computer)
+        $("#" + new_move).addClass('disable computer btn-primary')
     }
 
 
@@ -367,8 +377,8 @@ $(document).ready(function() {
             return;
         if (fork())
             return;
-        //if(block_fork()){}
-        //	return;
+        if (block_fork())
+            return;
         if (center())
             return;
         if (opposite_corner())
@@ -386,18 +396,20 @@ $(document).ready(function() {
             move_count--;
             return;
         } else {
-            add_board(this.id, x);
-            $(this).text(x)
-            $(this).addClass('disable x btn-info')
-            if (player_wins(x)) {
-                alert('X wins!')
+            add_board(this.id, player);
+            $(this).text(player)
+            $(this).addClass('disable player btn-info')
+            if (player_wins(player)) {
+                alert('You won!')
                 reset();
+                return;
             }
 
             bot();
-            if (player_wins(o)) {
+            if (player_wins(computer)) {
                 alert('Computer wins!')
                 reset();
+                return;
             }
         }
         is_draw();
