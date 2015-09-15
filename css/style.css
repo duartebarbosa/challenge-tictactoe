@@ -35,19 +35,6 @@ html, body {
     clear: both
 }
 
-#tic-tac-toe #reset {
-    padding: 5px 10px;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 20px;
-    clear: both;
-    cursor: pointer;
-    text-align: center;
-    text-transform: uppercase;
-    outline: none;
-    width: 204px
-}
-
 #tic-tac-toe h1 {
     text-align: center;
     font-size: 28px
@@ -73,4 +60,21 @@ html, body {
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
   display: inline-block;
+}
+
+@media (max-width: 768px) {
+	.square {
+		height: 80px;
+		width: 80px;
+		margin: 10px;
+	}
+
+	#tic-tac-toe #game li {
+	    list-style: none;
+	    text-align: center;
+	    vertical-align: middle;
+	    font-size: 50px;
+	    color: #ccc
+	}
+
 }
