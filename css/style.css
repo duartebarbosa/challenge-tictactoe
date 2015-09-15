@@ -62,7 +62,7 @@ html, body {
   display: inline-block;
 }
 
-@media (max-width: 568px) {
+@media only screen and (min-device-width : 320px) and (max-device-width : 349px) {
 	.square {
 		height: 60px;
 		width: 60px;
@@ -79,7 +79,7 @@ html, body {
 
 }
 
-@media ((min-width: 569px) and (max-width: 768px)) {
+@media (min-width: 350px) and (max-width: 992px) {
 	.square {
 		height: 80px;
 		width: 80px;
