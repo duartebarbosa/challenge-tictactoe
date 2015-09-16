@@ -1,177 +1,186 @@
 
 $(document).ready(function() {
-    var move_count = 0;
-    var player = "x";
-    var bot = "o";
-    var empty = "+";
 
-    var board = {
-        one: empty,
-        two: empty,
-        three: empty,
-        four: empty,
-        five: empty,
-        six: empty,
-        seven: empty,
-        eight: empty,
-        nine: empty
-    };
+// Board
+
+// numbered from left to right, top to bottom
+// ie, corners are 1, 3, 7 and 9
+//     edges are 2, 4, 6 and 8
+//     the center takes number 5
+
+//     1   2   3
+//     + | + | +
+//    ---+---+---
+//     + | + | +
+//    ---+---+---
+//     + | + | +
+//     7   8   9
+
+// The board is implemented with an array so subtract 1 to each number for its internal representation (zero-based indexing)
+// Each player keeps their own board with boolean values regarding their currently occupied places.
+// Constants have been defined to help querying the board (no magic numbers!)
+
+    const FIRST_CORNER = 0, SECOND_CORNER = 2, THIRD_CORNER = 6, FOURTH_CORNER = 8;
+    const FIRST_EDGE = 1, SECOND_EDGE = 3, THIRD_EDGE = 5, FOURTH_EDGE = 7;
+    const CENTER = 4;
+    const digits = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+    const human = 'X';
+    const bot = 'O';
+    const empty = '+';
+
+    var human_board = [false, false, false, false, false, false, false, false, false];
+    var bot_board = [false, false, false, false, false, false, false, false, false];
+    var move_count = 0;
+
 
     //resets the board (ui and internal representation)
     var reset_board = function reset() {
         move_count = 0;
-        $("#game li").text(empty).removeClass('disable btn-primary btn-info bot player');
-        for(var key in board)
-            board[key] = empty;
+        $('#game li').text(empty).removeClass('disable btn-primary btn-info bot human');
+        for (var i = human_board.length - 1; i >= 0; i--) {
+            human_board[i] = false;
+            bot_board[i] = false;
+        }
     };
 
     //checks if 'player' won
     function player_wins(player){
-        return board.one === board.two && board.one === board.three && board.one === player
-                || board.four === board.five && board.four === board.six && board.four === player
-                || board.seven === board.eight && board.seven === board.nine && board.seven === player
-                || board.one === board.four && board.one === board.seven && board.one === player
-                || board.two === board.five && board.two === board.eight && board.two === player
-                || board.three === board.six && board.three === board.nine && board.three === player
-                || board.one === board.five && board.one === board.nine && board.one === player
-                || board.three === board.five && board.three === board.seven && board.three === player;
+        var board = (player === bot)? bot_board : human_board;
+        for (var i = 0, j = 0; i != 9; i+=3, j++) {
+            if(board[i] && board[i+1] && board[i+2])       //horizontal check
+                return true;
+            else if(board[j] && board[j+3] && board[j+6])  //vertical check
+                return true;
+        }
+        //diagonals
+        return (board[FIRST_CORNER] && board[CENTER]  && board[FOURTH_CORNER])
+            || (board[SECOND_CORNER] && board[CENTER] && board[THIRD_CORNER]);
     }
 
     //checks if the game is a tie
     function is_draw() {
         if (move_count === 9) {
-            $("#modal-content").text('An optimal game for each player gets you a draw. Congrats.');
+            $('#modal-content').text('An optimal game for each player gets you a draw. Congrats.');
             $('#modal').modal();
         }
     }
 
-    function checks_possible_winning_moves(player1, player2) {
-        var next_move = "";
-        if (board.one === board.two && board.three !== player1 && board.one === player2)
-            next_move = "board.three";
-        else if (board.two === board.three && board.one !== player1 && board.two === player2)
-            next_move = "board.one";
-        else if (board.one === board.three && board.two !== player1 && board.one === player2)
-            next_move = "board.two";
-        else if (board.four === board.five && board.six !== player1 && board.four === player2)
-            next_move = "board.six";
-        else if (board.five === board.six && board.four !== player1 && board.five === player2)
-            next_move = "board.four";
-        else if (board.four === board.six && board.five !== player1 && board.four === player2)
-            next_move = "board.five";
-        else if (board.seven === board.eight && board.nine !== player1 && board.seven === player2)
-            next_move = "board.nine";
-        else if (board.eight === board.nine && board.seven !== player1 && board.eight === player2)
-            next_move = "board.seven";
-        else if (board.seven === board.nine && board.eight !== player1 && board.seven === player2)
-            next_move = "board.eight";
-        else if (board.one === board.four && board.seven !== player1 && board.one === player2)
-            next_move = "board.seven";
-        else if (board.four === board.seven && board.one !== player1 && board.four === player2)
-            next_move = "board.one";
-        else if (board.one === board.seven && board.four !== player1 && board.one === player2)
-            next_move = "board.four";
-        else if (board.two === board.five && board.eight !== player1 && board.two === player2)
-            next_move = "board.eight";
-        else if (board.five === board.eight && board.two !== player1 && board.five === player2)
-            next_move = "board.two";
-        else if (board.two === board.eight && board.five !== player1 && board.two === player2)
-            next_move = "board.five";
-        else if (board.three === board.six && board.nine !== player1 && board.three === player2)
-            next_move = "board.nine";
-        else if (board.six === board.nine && board.three !== player1 && board.six === player2)
-            next_move = "board.three";
-        else if (board.three === board.nine && board.six !== player1 && board.three === player2)
-            next_move = "board.six";
-        else if (board.one === board.five && board.nine !== player1 && board.one === player2)
-            next_move = "board.nine";
-        else if (board.five === board.nine && board.one !== player1 && board.five === player2)
-            next_move = "board.one";
-        else if (board.one === board.nine && board.five !== player1 && board.one === player2)
-            next_move = "board.five";
-        else if (board.three === board.five && board.seven !== player1 && board.three === player2)
-            next_move = "board.seven";
-        else if (board.five === board.seven && board.three !== player1 && board.five === player2)
-            next_move = "board.three";
-        else if (board.three === board.seven && board.five !== player1 && board.three === player2)
-            next_move = "board.five";
-
-        if (next_move !== "") {
-            move_bot(next_move);
-            return true;
-        }
-        return false;
+    //places moves in internal board, updates move count
+    function add_to_board(place, player) {
+        move_count++;
+        var board = (player === bot) ? bot_board : human_board;
+        board[place] = true;
     }
+
+    function is_empty(place) {
+        return ! bot_board[place] && ! human_board[place];
+    }
+
+// Bot
+
+// Basic AI strategy:
+//  1) search for a place that wins the game
+//  2) block a place that would give a victory to the opponent
+//  3) grabs places that increase opportunities
+//  4) blocks forking opportunities of the opponent
+//  5) grabs the center position (the most valuable one)
+//  6) grabs opposing corners of the opponent
+//  7) grabs any corner
+//  8) grabs the edges (remaining positions)
+
+    //looks for winning moves
+    function checks_possible_winning_moves(player1, player2) {
+        var opponent_board = (player1 === bot)? bot_board : human_board;
+        var board = (player2 === bot)? bot_board : human_board;
+
+        for (var i = 0, j = 0; i != 9; i+=3, j++) {
+            // horizontal check
+            if(board[i] && board[i+1] && ! opponent_board[i+2])         //     X | X | +
+                return move_bot(i+2);                                   //    ---+---+---
+            else if(board[i+1] && board[i+2] && ! opponent_board[i])    //     + | X | X
+                return move_bot(i);                                     //    ---+---+---
+            else if(board[i] && board[i+2] && ! opponent_board[i+1])    //     X | + | X
+                return move_bot(i+1);
+
+            // vertical check
+            else if(board[j] && board[j+3] && ! opponent_board[j+6])    //     X | + | X
+                return move_bot(j+6);                                   //    ---+---+---
+            else if(board[j+3] && board[j+6] && ! opponent_board[j])    //     X | + | +
+                return move_bot(j);                                     //    ---+---+---
+            else if(board[j] && board[j+6] && ! opponent_board[j+3])    //     + | X | X
+                return move_bot(j+3);
+        }
+        // diagonals
+        if (board[FIRST_CORNER] && board[CENTER] && !opponent_board[FOURTH_CORNER])
+            return move_bot(FOURTH_CORNER);
+        else if (board[CENTER] && board[FOURTH_CORNER] && !opponent_board[FIRST_CORNER])
+            return move_bot(FIRST_CORNER);
+        else if (board[FIRST_CORNER] && board[FOURTH_CORNER] && !opponent_board[CENTER])
+            return move_bot(CENTER);
+        else if (board[SECOND_CORNER] && board[CENTER] && !opponent_board[THIRD_CORNER])
+            return move_bot(THIRD_CORNER);
+        else if (board[CENTER] && board[THIRD_CORNER] && !opponent_board[SECOND_CORNER])
+            return move_bot(SECOND_CORNER);
+        else if (board[SECOND_CORNER] && board[THIRD_CORNER] && !opponent_board[CENTER])
+            return move_bot(CENTER);
+
+        return false;
+        }
 
     //checks if a move can win the game
     function win() {
         if (move_count > 4)
-            return checks_possible_winning_moves(player, bot);
+            return checks_possible_winning_moves(human, bot);
         return false;
     }
 
-    //blocks an opponent move (using the reverse logic of win())
+    //blocks an opponent winning move (using the reverse logic of win())
     function block() {
         if (move_count > 2)
-            return checks_possible_winning_moves(bot, player);
+            return checks_possible_winning_moves(bot, human);
         return false;
     }
 
-    //forks to multiply chances of winning
+    //forks so that the opportunities to win increase
     function fork() {
         if (move_count > 4) {
-            var next_move = "";
             //the bot has the center position
-            if (board.five === bot) {
-                if (board.one === bot) {
-                    if (board.three === empty)
-                        next_move = "board.three";
-                    else if (board.seven === empty)
-                        next_move = "board.seven";
-                } else if (board.three === bot) {
-                    if (board.one === empty)
-                        next_move = "board.one";
-                    else if (board.nine === empty)
-                        next_move = "board.nine";
-                } else if (board.seven === bot) {
-                    if (board.one === empty)
-                        next_move = "board.one";
-                    else if (board.nine === empty)
-                        next_move = "board.nine";
-                } else if (board.nine === bot) {
-                    if (board.seven === empty)
-                        next_move = "board.seven";
-                    else if (board.three === empty)
-                        next_move = "board.three";
+            if (bot_board[CENTER]) {                                                    //   example:
+                if (bot_board[FIRST_CORNER] || bot_board[FOURTH_CORNER]) {              //     X | + | X
+                    if (is_empty(SECOND_CORNER))                                        //    ---+---+---
+                        return move_bot(SECOND_CORNER);                                 //     + | X | +
+                    else if (is_empty(THIRD_CORNER))                                    //    ---+---+---
+                        return move_bot(THIRD_CORNER);                                  //     + | + | +
+                } else if (bot_board[SECOND_CORNER] || bot_board[THIRD_CORNER]) {
+                    if (is_empty(FIRST_CORNER))
+                        return move_bot(FIRST_CORNER);
+                    else if (is_empty(FOURTH_CORNER))
+                        return move_bot(FOURTH_CORNER);
                 }
             } else {
-                if (board.one === bot) {
-                    if ((board.three === bot || board.seven === bot) && board.nine === empty)
-                        next_move = "board.nine";
-                    else if ((board.nine === bot || board.seven === bot) && board.three === empty)
-                        next_move = "board.three";
-                    else if ((board.three === bot || board.nine === bot) && board.seven === empty)
-                        next_move = "board.seven";
-                } else if (board.three === bot) {
-                    if ((board.nine === bot || board.seven === bot) && board.one === empty)
-                        next_move = "board.one";
-                    else if ((board.one === bot || board.nine === bot) && board.seven === empty)
-                        next_move = "board.seven";
-                    else if ((board.one === bot || board.seven === bot) && board.nine === empty)
-                        next_move = "board.nine";
-                } else if (board.seven === bot) {
-                    if ((board.three === bot || board.nine === bot) && board.one === empty)
-                        next_move = "board.one";
-                    else if ((board.one === bot || board.nine === bot) && board.three === empty)
-                        next_move = "board.three";
-                    else if ((board.one === bot || board.three === bot) && board.nine === empty)
-                        next_move = "board.nine";
+                if (bot_board[FIRST_CORNER]) {                                                                      //   example:
+                    if ((bot_board[SECOND_CORNER] || bot_board[THIRD_CORNER]) && is_empty(FOURTH_CORNER))           //     X | + | X
+                        return move_bot(FOURTH_CORNER);                                                             //    ---+---+---
+                    else if ((bot_board[FOURTH_CORNER] || bot_board[THIRD_CORNER]) && is_empty(SECOND_CORNER))      //     + | + | +
+                        return move_bot(SECOND_CORNER);                                                             //    ---+---+---
+                    else if ((bot_board[SECOND_CORNER] || bot_board[FOURTH_CORNER]) && is_empty(THIRD_CORNER))      //     + | + | X
+                        return move_bot(THIRD_CORNER);
+                } else if (bot_board[SECOND_CORNER]) {
+                    if ((bot_board[FOURTH_CORNER] || bot_board[THIRD_CORNER]) && is_empty(FIRST_CORNER))
+                        return move_bot(FIRST_CORNER);
+                    else if ((bot_board[FIRST_CORNER] || bot_board[FOURTH_CORNER]) && is_empty(THIRD_CORNER))
+                        return move_bot(THIRD_CORNER);
+                    else if ((bot_board[FIRST_CORNER] || bot_board[THIRD_CORNER]) && is_empty(FOURTH_CORNER))
+                        return move_bot(FOURTH_CORNER);
+                } else if (bot_board[THIRD_CORNER]) {
+                    if ((bot_board[SECOND_CORNER] || bot_board[FOURTH_CORNER]) && is_empty(FIRST_CORNER))
+                        return move_bot(FIRST_CORNER);
+                    else if ((bot_board[FIRST_CORNER] || bot_board[FOURTH_CORNER]) && is_empty(SECOND_CORNER))
+                        return move_bot(SECOND_CORNER);
+                    else if ((bot_board[FIRST_CORNER] || bot_board[SECOND_CORNER]) && is_empty(FOURTH_CORNER))
+                        return move_bot(FOURTH_CORNER);
                 }
 
-            }
-            if (next_move !== "") {
-                move_bot(next_move);
-                return true;
             }
         }
         return false;
@@ -179,88 +188,69 @@ $(document).ready(function() {
 
     //blocks imminent opponent forks
     function block_fork() {
-        if (board.five === bot) {
-            if (board.one === player && board.nine === player || board.three === player && board.seven === player)
-                return empty_side();
+        if (bot_board[CENTER]) {
+            if (human_board[FIRST_CORNER] && human_board[FOURTH_CORNER] || human_board[SECOND_CORNER] && human_board[THIRD_CORNER])
+                return take_empty_edge();
         }
         return false;
     }
 
     //grabs the center of the board
-    function center() {
-        if (board.five === empty) {
-            move_bot("board.five");
-            return true;
+    function take_center() {
+        if (is_empty(CENTER)) {
+            return move_bot(CENTER);
         }
         return false;
     }
 
     //grabs the opposite corner of the opponent
-    function opposite_corner() {
-        var next_move = "";
-        if (board.one === player && board.nine === empty)
-            next_move = "board.nine";
-        else if (board.three === player && board.seven === empty)
-            next_move = "board.seven";
-        else if (board.seven === player && board.three === empty)
-            next_move = "board.three";
-        else if (board.nine === player && board.one === empty)
-            next_move = "board.one";
+    function take_opposite_corner() {
+        if (human_board[FIRST_CORNER] && is_empty(FOURTH_CORNER))
+            return move_bot(FOURTH_CORNER);
+        else if (human_board[SECOND_CORNER] && is_empty(THIRD_CORNER))
+            return move_bot(THIRD_CORNER);
+        else if (human_board[THIRD_CORNER] && is_empty(SECOND_CORNER))
+            return move_bot(SECOND_CORNER);
+        else if (human_board[FOURTH_CORNER] && is_empty(FIRST_CORNER))
+            return move_bot(FIRST_CORNER);
 
-        if (next_move !== "") {
-            move_bot(next_move);
-            return true;
-        }
         return false;
     }
 
     //grabs any empty corner
-    function empty_corner() {
-        var next_move = "";
-        if (board.one === empty)
-            next_move = "board.one";
-        else if (board.three === empty)
-            next_move = "board.three";
-        else if (board.seven === empty)
-            next_move = "board.seven";
-        else if (board.nine === empty)
-            next_move = "board.nine";
+    function take_empty_corner() {
+        if (is_empty(FIRST_CORNER))
+            return move_bot(FIRST_CORNER);
+        else if (is_empty(SECOND_CORNER))
+            return move_bot(SECOND_CORNER);
+        else if (is_empty(THIRD_CORNER))
+            return move_bot(THIRD_CORNER);
+        else if (is_empty(FOURTH_CORNER))
+            return move_bot(FOURTH_CORNER);
 
-        if (next_move !== "") {
-            move_bot(next_move);
-            return true;
-        }
         return false;
     }
 
     //grabs one of the edge spots
-    function empty_side() {
+    function take_empty_edge() {
         if (move_count < 9) {
-            if (board.two === empty)
-                move_bot("board.two");
-            else if (board.four === empty)
-                move_bot("board.four");
-            else if (board.six === empty)
-                move_bot("board.six");
+            if (is_empty(FIRST_EDGE))
+                return move_bot(FIRST_EDGE);
+            else if (is_empty(SECOND_EDGE))
+                return move_bot(SECOND_EDGE);
+            else if (is_empty(THIRD_EDGE))
+                return move_bot(THIRD_EDGE);
             else
-                move_bot("board.eight");
-
-            return true;
+                return move_bot(FOURTH_EDGE);
         }
         return false;
     }
 
-    //places moves in internal board, updates move count
-    function add_to_board(place, player) {
-        move_count++;
-        board[place] = player;
-    }
-
     //moves bot and updates ui
     function move_bot(place) {
-        var new_move = place.substring(6);
-        add_to_board(new_move, bot);
-        $("#" + new_move).text(bot).addClass('disable bot btn-primary');
+        add_to_board(place, bot);
+        $('#' + digits[place]).text(bot).addClass('disable bot btn-primary');
+        return true;
     }
 
     //bot strategy
@@ -269,16 +259,25 @@ $(document).ready(function() {
             || block()
             || fork()
             || block_fork()
-            || center()
-            || opposite_corner()
-            || empty_corner()
-            || empty_side();
+            || take_center()
+            || take_opposite_corner()
+            || take_empty_corner()
+            || take_empty_edge();
     }
 
-    //moves player and updates ui
-    function move_player(argument) {
-        add_to_board(argument.id, player);
-        $(argument).text(player).addClass('disable player btn-info');
+
+// Tic Tac Toe
+
+// each round is delimited by a player turn
+// an event listener is called upon clicking one of the positions
+
+    //moves human and updates ui
+    function move_human(place) {
+        for (var i = digits.length - 1; i >= 0; i--)
+            if (place.id == digits[i])
+                add_to_board(i, human);
+
+        $(place).text(human).addClass('disable human btn-info');
     }
 
     //game round
@@ -287,24 +286,23 @@ $(document).ready(function() {
         if ($(this).hasClass('disable')) {
             return;
         } else {
-            //player turn
-            move_player(this);
-            if (player_wins(player)) {
-                $("#modal-content").text('You won!');
+            //human turn
+            move_human(this);
+            if (player_wins(human)) {
+                $('#modal-content').text('You won!');
                 $('#modal').modal();
                 return;
             }
             //bot turn
-            run_bot();
+            run_bot();      //feel free to change this call to your own bot
             if (player_wins(bot)) {
-                $("#modal-content").text('Bot won!');
+                $('#modal-content').text('Bot won!');
                 $('#modal').modal();
                 return;
             }
         }
         is_draw();
     };
-
 
     //event listeners
     $('#modal-button').click(reset_board);

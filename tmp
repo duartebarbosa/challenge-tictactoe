@@ -1,0 +1,329 @@
++http://jsfiddle.net/5wKfF/378/
++https://github.com/Rodic/TOP---js-assignments/tree/master/Project%20-%20Tic%20Tac%20Toe%20in%20Javascript
++https://www.codecademy.com/ckangas/codebits/gPJTFP/edit
++https://github.com/aglemann/tic-tac-toe/blob/master/tic-tac-toe.js
++http://mkuklis.github.io/tictactoe/docs/tictactoe.html
+
+
+
+$(document).ready(function() {
+
+// The board is numbered from left to right, top to bottom
+// ie, corners are 1, 3, 7 and 9
+//     edges are 2, 4, 6 and 8
+//     the center takes number 5
+
+//     1   2   3
+//     + | + | +
+//    ---+---+---
+//     + | + | +
+//    ---+---+---
+//     + | + | +
+//     7   8   9
+
+// The board is implemented with an array so subtract 1 to each number for its internal representation (zero-based indexing)
+// Constants have been defined to help querying the board (no magic numbers!)
+
+    const FIRST_CORNER = 0, SECOND_CORNER = 2, THIRD_CORNER = 6, FOURTH_CORNER = 8;
+    const FIRST_EDGE = 1, SECOND_EDGE = 3, THIRD_EDGE = 5, FOURTH_EDGE = 7;
+    const CENTER = 4;
+
+    var move_count = 0;
+    const human = 'X';
+    const bot = 'O';
+    const empty = '+';
+
+    const digits = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+    var human_board = [false, false, false, false, false, false, false, false, false];
+    var bot_board = [false, false, false, false, false, false, false, false, false];
+
+    //resets the board (ui and internal representation)
+    var reset_board = function reset() {
+        move_count = 0;
+        $('#game li').text(empty).removeClass('disable btn-primary btn-info bot human');
+        for (var i = human_board.length - 1; i >= 0; i--) {
+            human_board[i] = false;
+            bot_board[i] = false;
+        }
+    };
+
+    //checks if 'player' won
+    function player_wins(player){
+        var board = (player === bot)? bot_board : human_board;
+        for (var i = 0, j = 0; i != 9; i+=3, j++) {
+            if(board[i] && board[i+1] && board[i+2])       //horizontal check
+                return true;
+            else if(board[j] && board[j+3] && board[j+6])  //vertical check
+                return true;
+        }
+        //diagonals
+        return (board[FIRST_CORNER] && board[CENTER]  && board[FOURTH_CORNER])
+            || (board[SECOND_CORNER] && board[CENTER] && board[THIRD_CORNER]);
+    }
+
+    //checks if the game is a tie
+    function is_draw() {
+        if (move_count === 9) {
+            $('#modal-content').text('An optimal game for each player gets you a draw. Congrats.');
+            $('#modal').modal();
+        }
+    }
+
+    //places moves in internal board, updates move count
+    function add_to_board(place, player) {
+        move_count++;
+        var board = (player === bot) ? bot_board : human_board;
+        for (var i = digits.length - 1; i >= 0; i--) {
+            if (place == digits[i]) {
+                board[i] = true;
+                return;
+            }
+        }
+    }
+
+
+    var basic_bot = {
+
+        checks_possible_winning_moves: function(player1, player2) {
+            var next_move = '';
+
+            var opponent_board = (player1 === bot)? bot_board : human_board;
+            var board = (player2 === bot)? bot_board : human_board;
+
+            for (var i = 0, j = 0; i != 9; i+=3, j++) {
+                // horizontal check
+                if(board[i] && board[i+1] && ! opponent_board[i+2])         //     X | X | +
+                    next_move = digits[i+2];                                //    ---+---+---
+                else if(board[i+1] && board[i+2] && ! opponent_board[i])    //     + | X | X
+                    next_move = digits[i];                                  //    ---+---+---
+                else if(board[i] && board[i+2] && ! opponent_board[i+1])    //     X | + | X
+                    next_move = digits[i+1];
+
+                // vertical check
+                else if(board[j] && board[j+3] && ! opponent_board[j+6])    //     X | + | X
+                    next_move = digits[j+6];                                //    ---+---+---
+                else if(board[j+3] && board[j+6] && ! opponent_board[j])    //     X | + | +
+                    next_move = digits[j];                                  //    ---+---+---
+                else if(board[j] && board[j+6] && ! opponent_board[j+3])    //     + | X | X
+                    next_move = digits[j+3];
+            }
+            // diagonals
+            if (next_move === '') {
+                if (board[FIRST_CORNER] && board[CENTER] && ! opponent_board[FOURTH_CORNER])
+                    next_move = digits[FOURTH_CORNER];
+                else if (board[CENTER] && board[FOURTH_CORNER] && ! opponent_board[FIRST_CORNER])
+                    next_move = digits[FIRST_CORNER];
+                else if (board[FIRST_CORNER] && board[FOURTH_CORNER] && ! opponent_board[CENTER])
+                    next_move = digits[CENTER];
+                else if (board[SECOND_CORNER] && board[CENTER] && ! opponent_board[THIRD_CORNER])
+                    next_move = digits[THIRD_CORNER];
+                else if (board[CENTER] && board[THIRD_CORNER] && ! opponent_board[SECOND_CORNER])
+                    next_move = digits[SECOND_CORNER];
+                else if (board[SECOND_CORNER] && board[THIRD_CORNER] && ! opponent_board[CENTER])
+                    next_move = digits[CENTER];
+            }
+
+            if (next_move !== '') {
+                move_bot(next_move);
+                return true;
+            }
+            return false;
+        },
+
+        //checks if a move can win the game
+        win: function() {
+            if (move_count > 4)
+                return checks_possible_winning_moves(human, bot);
+            return false;
+        },
+
+        //blocks an opponent move (using the reverse logic of win())
+        block: function() {
+            if (move_count > 2)
+                return checks_possible_winning_moves(bot, human);
+            return false;
+        },
+
+
+        is_empty: function(place) {
+            return ! bot_board[place] && ! human_board[place];
+        },
+
+        fork: function() {
+            if (move_count > 4) {
+                var next_move = '';
+
+                //the bot has the center position
+                if (bot_board[CENTER]) {                                                    //   example:
+                    if (bot_board[FIRST_CORNER] || bot_board[FOURTH_CORNER]) {              //     X | + | X
+                        if (is_empty(SECOND_CORNER))                                        //    ---+---+---
+                            next_move = 'three';                                            //     + | X | +
+                        else if (is_empty(THIRD_CORNER))                                    //    ---+---+---
+                            next_move = 'seven';                                            //     + | + | +
+                    } else if (bot_board[SECOND_CORNER] || bot_board[THIRD_CORNER]) {
+                        if (is_empty(FIRST_CORNER))
+                            next_move = 'one';
+                        else if (is_empty(FOURTH_CORNER))
+                            next_move = 'nine';
+                    }
+                } else {
+                    if (bot_board[FIRST_CORNER]) {                                                                      //   example:
+                        if ((bot_board[SECOND_CORNER] || bot_board[THIRD_CORNER]) && is_empty(FOURTH_CORNER))           //     X | + | X
+                            next_move = 'nine';                                                                         //    ---+---+---
+                        else if ((bot_board[FOURTH_CORNER] || bot_board[THIRD_CORNER]) && is_empty(SECOND_CORNER))      //     + | + | +
+                            next_move = 'three';                                                                        //    ---+---+---
+                        else if ((bot_board[SECOND_CORNER] || bot_board[FOURTH_CORNER]) && is_empty(THIRD_CORNER))      //     + | + | X
+                            next_move = 'seven';
+                    } else if (bot_board[SECOND_CORNER]) {
+                        if ((bot_board[FOURTH_CORNER] || bot_board[THIRD_CORNER]) && is_empty(FIRST_CORNER))
+                            next_move = 'one';
+                        else if ((bot_board[FIRST_CORNER] || bot_board[FOURTH_CORNER]) && is_empty(THIRD_CORNER))
+                            next_move = 'seven';
+                        else if ((bot_board[FIRST_CORNER] || bot_board[THIRD_CORNER]) && is_empty(FOURTH_CORNER))
+                            next_move = 'nine';
+                    } else if (bot_board[THIRD_CORNER]) {
+                        if ((bot_board[SECOND_CORNER] || bot_board[FOURTH_CORNER]) && is_empty(FIRST_CORNER))
+                            next_move = 'one';
+                        else if ((bot_board[FIRST_CORNER] || bot_board[FOURTH_CORNER]) && is_empty(SECOND_CORNER))
+                            next_move = 'three';
+                        else if ((bot_board[FIRST_CORNER] || bot_board[SECOND_CORNER]) && is_empty(FOURTH_CORNER))
+                            next_move = 'nine';
+                    }
+
+                }
+                if (next_move !== '') {
+                    move_bot(next_move);
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        //blocks imminent opponent forks
+        block_fork: function() {
+            if (bot_board[CENTER]) {
+                if (human_board[FIRST_CORNER] && human_board[FOURTH_CORNER] || human_board[SECOND_CORNER] && human_board[THIRD_CORNER])
+                    return take_empty_edge();
+            }
+            return false;
+        },
+
+        //grabs the center of the board
+        take_center: function() {
+            if (is_empty(CENTER)) {
+                move_bot('five');
+                return true;
+            }
+            return false;
+        },
+
+        //grabs the opposite corner of the opponent
+        take_opposite_corner: function() {
+            var next_move = '';
+            if (human_board[FIRST_CORNER] && is_empty(FOURTH_CORNER))
+                next_move = 'nine';
+            else if (human_board[SECOND_CORNER] && is_empty(THIRD_CORNER))
+                next_move = 'seven';
+            else if (human_board[THIRD_CORNER] && is_empty(SECOND_CORNER))
+                next_move = 'three';
+            else if (human_board[FOURTH_CORNER] && is_empty(FIRST_CORNER))
+                next_move = 'one';
+
+            if (next_move !== '') {
+                move_bot(next_move);
+                return true;
+            }
+            return false;
+        },
+
+        //grabs any empty corner
+        take_empty_corner: function() {
+            var next_move = '';
+            if (is_empty(FIRST_CORNER))
+                next_move = 'one';
+            else if (is_empty(SECOND_CORNER))
+                next_move = 'three';
+            else if (is_empty(THIRD_CORNER))
+                next_move = 'seven';
+            else if (is_empty(FOURTH_CORNER))
+                next_move = 'nine';
+
+            if (next_move !== '') {
+                move_bot(next_move);
+                return true;
+            }
+            return false;
+        },
+
+        //grabs one of the edge spots
+        take_empty_edge: function() {
+            if (move_count < 9) {
+                if (is_empty(FIRST_EDGE))
+                    move_bot('two');
+                else if (is_empty(SECOND_EDGE))
+                    move_bot('four');
+                else if (is_empty(THIRD_EDGE))
+                    move_bot('six');
+                else
+                    move_bot('eight');
+
+                return true;
+            }
+            return false;
+        },
+
+        //moves bot and updates ui
+        move_bot: function(place) {
+            add_to_board(place, bot);
+            $('#' + place).text(bot).addClass('disable bot btn-primary');
+        },
+
+        //bot strategy
+        run_bot: function() {
+            return this.win()
+                || this.block()
+                || this.fork()
+                || this.block_fork()
+                || this.take_center()
+                || this.take_opposite_corner()
+                || this.take_empty_corner()
+                || this.take_empty_edge();
+        }
+    }
+
+    //moves human and updates ui
+    function move_human(place) {
+        add_to_board(place.id, human);
+        $(place).text(human).addClass('disable human btn-info');
+    }
+
+    //game round
+    var tictactoe = function() {
+        //this position is already occupied
+        if ($(this).hasClass('disable')) {
+            return;
+        } else {
+            //human turn
+            move_human(this);
+            if (player_wins(human)) {
+                $('#modal-content').text('You won!');
+                $('#modal').modal();
+                return;
+            }
+            //bot turn
+            basic_bot.run_bot();
+            if (player_wins(bot)) {
+                $('#modal-content').text('Bot won!');
+                $('#modal').modal();
+                return;
+            }
+        }
+        is_draw();
+    };
+
+    //event listeners
+    $('#modal-button').click(reset_board);
+
+    $('#game li').click(tictactoe);
+
+});
